@@ -2,7 +2,6 @@ package com.pemmob.smartcanteen.ui.menu
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.pemmob.smartcanteen.data.model.CartItem
 import com.pemmob.smartcanteen.data.model.CartState
 import com.pemmob.smartcanteen.data.model.MenuItem
 import com.pemmob.smartcanteen.data.repository.CanteenRepository
@@ -13,7 +12,6 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.stateIn
-import kotlinx.coroutines.flow.update
 
 class MenuViewModel(
     private val repository: CanteenRepository = FakeCanteenRepository,
@@ -28,8 +26,8 @@ class MenuViewModel(
     private val _selectedCategory = MutableStateFlow("All")
     val selectedCategory: StateFlow<String> = _selectedCategory.asStateFlow()
 
-    private val _cartState = MutableStateFlow(CartState())
-    val cartState: StateFlow<CartState> = _cartState.asStateFlow()
+    // Membaca cartState dari repositori (Single Source of Truth)
+    val cartState: StateFlow<CartState> = repository.cartState
 
     val uiState: StateFlow<MenuUiState> = combine(
         repository.getMenuItems(storeId),
@@ -59,44 +57,18 @@ class MenuViewModel(
     }
 
     fun addToCart(menuItem: MenuItem) {
-        val currentItems = _cartState.value.items
-        val currentCartItem = currentItems[menuItem.id]
-        val currentQty = currentCartItem?.quantity ?: 0
-
-        if (currentQty >= menuItem.stock) {
-            _cartState.update { state ->
-                state.copy(userNotice = "Stok ${menuItem.name} hanya tersisa ${menuItem.stock}")
-            }
-            return
-        }
-
-        val updatedMap = currentItems.toMutableMap().apply {
-            put(menuItem.id, CartItem(menuItem, currentQty + 1))
-        }
-
-        _cartState.update { it.copy(items = updatedMap, userNotice = null) }
+        repository.addToCart(menuItem)
     }
 
     fun decreaseQuantity(menuItem: MenuItem) {
-        val currentItems = _cartState.value.items
-        val currentCartItem = currentItems[menuItem.id] ?: return
-        val currentQty = currentCartItem.quantity
-
-        val updatedMap = currentItems.toMutableMap()
-        if (currentQty <= 1) {
-            updatedMap.remove(menuItem.id)
-        } else {
-            updatedMap[menuItem.id] = CartItem(menuItem, currentQty - 1)
-        }
-
-        _cartState.update { it.copy(items = updatedMap, userNotice = null) }
+        repository.decreaseQuantity(menuItem)
     }
 
     fun clearCart() {
-        _cartState.value = CartState()
+        repository.clearCart()
     }
 
     fun dismissNotice() {
-        _cartState.update { it.copy(userNotice = null) }
+        repository.dismissCartNotice()
     }
 }

@@ -27,8 +27,8 @@ class MenuViewModelTest {
 
     @Before
     fun setUp() {
+        FakeCanteenRepository.clearCart()
         viewModel = MenuViewModel(repository = FakeCanteenRepository)
-        viewModel.clearCart()
     }
 
     @Test
@@ -103,4 +103,5 @@ class MenuViewModelTest {
         viewModel.onSearchQueryChange("Ayam")
         assertEquals("Ayam", viewModel.searchQuery.value)
     }
+
 }
