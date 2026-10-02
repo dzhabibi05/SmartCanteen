@@ -1,16 +1,13 @@
 package com.pemmob.smartcanteen
 
 import android.os.Bundle
+import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Text
-import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.tooling.preview.Preview
+import com.pemmob.smartcanteen.ui.menu.MenuCatalogScreen
 import com.pemmob.smartcanteen.ui.theme.SmartCanteenTheme
 
 class MainActivity : ComponentActivity() {
@@ -19,29 +16,20 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
         setContent {
             SmartCanteenTheme {
-                Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
-                    Greeting(
-                        name = "Android",
-                        modifier = Modifier.padding(innerPadding)
-                    )
-                }
+                MenuCatalogScreen(
+                    modifier = Modifier.fillMaxSize(),
+                    onCheckoutClick = { cartState ->
+                        Toast.makeText(
+                            this,
+                            "Melanjutkan ${cartState.totalCount} item ke ringkasan pesanan...",
+                            Toast.LENGTH_SHORT
+                        ).show()
+                    },
+                    onBottomNavTabSelected = { tab ->
+                        Toast.makeText(this, "Tab: ${tab.label}", Toast.LENGTH_SHORT).show()
+                    }
+                )
             }
         }
-    }
-}
-
-@Composable
-fun Greeting(name: String, modifier: Modifier = Modifier) {
-    Text(
-        text = "Hello $name!",
-        modifier = modifier
-    )
-}
-
-@Preview(showBackground = true)
-@Composable
-fun GreetingPreview() {
-    SmartCanteenTheme {
-        Greeting("Android")
     }
 }
