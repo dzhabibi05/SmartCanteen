@@ -38,11 +38,13 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -63,6 +65,7 @@ import com.pemmob.smartcanteen.data.model.OrderItem
 import com.pemmob.smartcanteen.data.model.OrderStatus
 import com.pemmob.smartcanteen.data.model.PaymentMethod
 import com.pemmob.smartcanteen.ui.menu.components.MerchantBottomNav
+import com.pemmob.smartcanteen.ui.menu.components.MerchantNavTab
 import com.pemmob.smartcanteen.ui.theme.CanteenBadgeLowStock
 import com.pemmob.smartcanteen.ui.theme.CanteenBadgeLowStockBg
 import com.pemmob.smartcanteen.ui.theme.CanteenBadgeStock
@@ -82,10 +85,12 @@ import java.util.Locale
 
 @Composable
 fun MerchantDashboardScreen(
+    onNavigateToAuth: () -> Unit = {},
     modifier: Modifier = Modifier,
     viewModel: MerchantViewModel = viewModel()
 ) {
     val uiState by viewModel.uiState.collectAsState()
+    var selectedTab by remember { mutableStateOf(MerchantNavTab.ORDERS) }
 
     Scaffold(
         modifier = modifier.fillMaxSize(),
@@ -96,7 +101,16 @@ fun MerchantDashboardScreen(
                     .fillMaxWidth()
                     .navigationBarsPadding()
             ) {
-                MerchantBottomNav()
+                MerchantBottomNav(
+                    selectedTab = selectedTab,
+                    onTabSelected = { tab ->
+                        if (tab == MerchantNavTab.PROFILE) {
+                            onNavigateToAuth()
+                        } else {
+                            selectedTab = tab
+                        }
+                    }
+                )
             }
         }
     ) { innerPadding ->
@@ -336,13 +350,6 @@ private fun MerchantHeaderSection() {
             text = "Kantin SmartCanteen - Stand #04",
             style = MaterialTheme.typography.bodySmall,
             color = CanteenTextSecondary
-        )
-
-        Spacer(modifier = Modifier.height(4.dp))
-
-        Text(
-            text = "Halo Dyandra! Selamat Berjualan 👋",
-            style = MaterialTheme.typography.bodySmall.copy(color = CanteenTextSecondary)
         )
 
         Row(

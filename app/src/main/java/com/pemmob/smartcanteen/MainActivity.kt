@@ -1,7 +1,6 @@
 package com.pemmob.smartcanteen
 
 import android.os.Bundle
-import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
@@ -13,6 +12,7 @@ import androidx.navigation.compose.rememberNavController
 import com.pemmob.smartcanteen.ui.auth.AuthScreen
 import com.pemmob.smartcanteen.ui.merchant.MerchantDashboardScreen
 import com.pemmob.smartcanteen.ui.menu.MenuCatalogScreen
+import com.pemmob.smartcanteen.ui.menu.components.CanteenNavTab
 import com.pemmob.smartcanteen.ui.navigation.Screen
 import com.pemmob.smartcanteen.ui.theme.SmartCanteenTheme
 import com.pemmob.smartcanteen.ui.tracking.OrderTrackingScreen
@@ -51,7 +51,9 @@ class MainActivity : ComponentActivity() {
                                 navController.navigate(Screen.Checkout.route)
                             },
                             onBottomNavTabSelected = { tab ->
-
+                                if (tab == CanteenNavTab.PROFILE) {
+                                    navController.navigate(Screen.Auth.route)
+                                }
                             }
                         )
                     }
@@ -82,7 +84,11 @@ class MainActivity : ComponentActivity() {
                     }
 
                     composable(Screen.MerchantDashboard.route) {
-                        MerchantDashboardScreen()
+                        MerchantDashboardScreen(
+                            onNavigateToAuth = {
+                                navController.navigate(Screen.Auth.route)
+                            }
+                        )
                     }
                 }
             }
