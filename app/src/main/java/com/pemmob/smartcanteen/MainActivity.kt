@@ -6,6 +6,8 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.navigation.compose.NavHost
+import androidx.navigation.NavType
+import androidx.navigation.navArgument
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.pemmob.smartcanteen.ui.auth.AuthScreen
@@ -13,6 +15,8 @@ import com.pemmob.smartcanteen.ui.merchant.MerchantDashboardScreen
 import com.pemmob.smartcanteen.ui.menu.MenuCatalogScreen
 import com.pemmob.smartcanteen.ui.navigation.Screen
 import com.pemmob.smartcanteen.ui.theme.SmartCanteenTheme
+import com.pemmob.smartcanteen.ui.tracking.OrderTrackingScreen
+import com.pemmob.smartcanteen.ui.checkout.CheckoutScreen
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -44,10 +48,35 @@ class MainActivity : ComponentActivity() {
                     composable(Screen.MenuCatalog.route) {
                         MenuCatalogScreen(
                             onCheckoutClick = {
-                                Toast.makeText(this@MainActivity, "Checkout Screen belum dibuat oleh Habibi", Toast.LENGTH_SHORT).show()
+                                navController.navigate(Screen.Checkout.route)
                             },
                             onBottomNavTabSelected = { tab ->
-                                Toast.makeText(this@MainActivity, "Tab: ${tab.label}", Toast.LENGTH_SHORT).show()
+
+                            }
+                        )
+                    }
+                    composable(Screen.Checkout.route) {
+                        CheckoutScreen(
+                            onBackClick = { navController.popBackStack() },
+                            onOrderSuccess = { orderId ->
+                                // Pindah ke layar tracking dan bersihkan backstack checkout
+                                navController.navigate(Screen.OrderTracking.createRoute(orderId)) {
+                                    popUpTo(Screen.MenuCatalog.route) { inclusive = false }
+                                }
+                            }
+                        )
+                    }
+                    composable(
+                        route = Screen.OrderTracking.route,
+                        arguments = listOf(navArgument("orderId") { type = NavType.StringType })
+                    ) { backStackEntry ->
+                        val orderId = backStackEntry.arguments?.getString("orderId") ?: ""
+                        OrderTrackingScreen(
+                            orderId = orderId,
+                            onBackClick = {
+                                navController.navigate(Screen.MenuCatalog.route) {
+                                    popUpTo(Screen.MenuCatalog.route) { inclusive = true }
+                                }
                             }
                         )
                     }
