@@ -1,16 +1,16 @@
 package com.pemmob.smartcanteen
 
 import android.os.Bundle
+import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Text
-import androidx.compose.runtime.Composable
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.tooling.preview.Preview
+import androidx.navigation.compose.NavHost
+import androidx.navigation.compose.composable
+import androidx.navigation.compose.rememberNavController
+import com.pemmob.smartcanteen.ui.auth.AuthScreen
+import com.pemmob.smartcanteen.ui.menu.MenuCatalogScreen
+import com.pemmob.smartcanteen.ui.navigation.Screen
 import com.pemmob.smartcanteen.ui.theme.SmartCanteenTheme
 
 class MainActivity : ComponentActivity() {
@@ -19,29 +19,37 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
         setContent {
             SmartCanteenTheme {
-                Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
-                    Greeting(
-                        name = "Android",
-                        modifier = Modifier.padding(innerPadding)
-                    )
+                val navController = rememberNavController()
+
+                NavHost(
+                    navController = navController,
+                    startDestination = Screen.Auth.route
+                ) {
+                    composable(Screen.Auth.route) {
+                        AuthScreen(
+                            onNavigateToBuyer = {
+                                navController.navigate(Screen.MenuCatalog.route) {
+                                    popUpTo(Screen.Auth.route) { inclusive = true }
+                                }
+                            },
+                            onNavigateToMerchant = {
+                                Toast.makeText(this@MainActivity, "Dashboard Penjual belum dibuat oleh Dyandra", Toast.LENGTH_SHORT).show()
+                            }
+                        )
+                    }
+
+                    composable(Screen.MenuCatalog.route) {
+                        MenuCatalogScreen(
+                            onCheckoutClick = {
+                                Toast.makeText(this@MainActivity, "Checkout Screen belum dibuat oleh Habibi", Toast.LENGTH_SHORT).show()
+                            },
+                            onBottomNavTabSelected = { tab ->
+                                Toast.makeText(this@MainActivity, "Tab: ${tab.label}", Toast.LENGTH_SHORT).show()
+                            }
+                        )
+                    }
                 }
             }
         }
-    }
-}
-
-@Composable
-fun Greeting(name: String, modifier: Modifier = Modifier) {
-    Text(
-        text = "Hello $name!",
-        modifier = modifier
-    )
-}
-
-@Preview(showBackground = true)
-@Composable
-fun GreetingPreview() {
-    SmartCanteenTheme {
-        Greeting("Android")
     }
 }
