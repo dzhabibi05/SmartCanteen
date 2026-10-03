@@ -9,6 +9,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.pemmob.smartcanteen.ui.auth.AuthScreen
+import com.pemmob.smartcanteen.ui.merchant.MerchantDashboardScreen
 import com.pemmob.smartcanteen.ui.menu.MenuCatalogScreen
 import com.pemmob.smartcanteen.ui.navigation.Screen
 import com.pemmob.smartcanteen.ui.theme.SmartCanteenTheme
@@ -33,7 +34,9 @@ class MainActivity : ComponentActivity() {
                                 }
                             },
                             onNavigateToMerchant = {
-                                Toast.makeText(this@MainActivity, "Dashboard Penjual belum dibuat oleh Dyandra", Toast.LENGTH_SHORT).show()
+                                navController.navigate(Screen.MerchantDashboard.route) {
+                                    popUpTo(Screen.Auth.route) { inclusive = true }
+                                }
                             }
                         )
                     }
@@ -47,6 +50,10 @@ class MainActivity : ComponentActivity() {
                                 Toast.makeText(this@MainActivity, "Tab: ${tab.label}", Toast.LENGTH_SHORT).show()
                             }
                         )
+                    }
+
+                    composable(Screen.MerchantDashboard.route) {
+                        MerchantDashboardScreen()
                     }
                 }
             }
