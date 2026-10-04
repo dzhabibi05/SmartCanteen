@@ -7,7 +7,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
@@ -51,7 +51,8 @@ fun CanteenBottomNav(
     Surface(
         modifier = modifier
             .fillMaxWidth()
-            .padding(horizontal = 20.dp, vertical = 10.dp),
+            .navigationBarsPadding() // Menangani inset navbar sistem HP
+            .padding(horizontal = 20.dp, vertical = 10.dp), // Spasi luar kapsul
         shape = RoundedCornerShape(32.dp),
         color = CanteenNavBarBg,
         shadowElevation = 0.dp

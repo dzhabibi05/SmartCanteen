@@ -12,10 +12,12 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.pemmob.smartcanteen.ui.auth.AuthScreen
 import com.pemmob.smartcanteen.ui.menu.MenuCatalogScreen
+import com.pemmob.smartcanteen.ui.menu.components.CanteenNavTab
 import com.pemmob.smartcanteen.ui.navigation.Screen
 import com.pemmob.smartcanteen.ui.theme.SmartCanteenTheme
 import com.pemmob.smartcanteen.ui.tracking.OrderTrackingScreen
 import com.pemmob.smartcanteen.ui.checkout.CheckoutScreen
+import com.pemmob.smartcanteen.ui.orders.MyOrdersScreen
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -48,7 +50,20 @@ class MainActivity : ComponentActivity() {
                                 navController.navigate(Screen.Checkout.route)
                             },
                             onBottomNavTabSelected = { tab ->
+                                when (tab) {
+                                    CanteenNavTab.HOME -> {
 
+                                    }
+                                    CanteenNavTab.MY_ORDERS -> {
+                                        navController.navigate(Screen.MyOrders.route)
+                                    }
+                                    CanteenNavTab.HISTORY -> {
+
+                                    }
+                                    CanteenNavTab.PROFILE -> {
+
+                                    }
+                                }
                             }
                         )
                     }
@@ -59,6 +74,36 @@ class MainActivity : ComponentActivity() {
                                 // Pindah ke layar tracking dan bersihkan backstack checkout
                                 navController.navigate(Screen.OrderTracking.createRoute(orderId)) {
                                     popUpTo(Screen.MenuCatalog.route) { inclusive = false }
+                                }
+                            }
+                        )
+                    }
+
+                    composable(Screen.MyOrders.route) {
+                        MyOrdersScreen(
+                            onOrderClick = { orderId ->
+                                navController.navigate(Screen.OrderTracking.createRoute(orderId))
+                            },
+                            onBackClick = {
+                                navController.popBackStack()
+                            },
+                            onBottomNavTabSelected = { tab ->
+                                when (tab) {
+                                    CanteenNavTab.HOME -> {
+                                        // Kembali ke Halaman Home / Menu Catalog
+                                        navController.navigate(Screen.MenuCatalog.route) {
+                                            popUpTo(Screen.MenuCatalog.route) { inclusive = true }
+                                        }
+                                    }
+                                    CanteenNavTab.MY_ORDERS -> {
+                                        // Sudah di My Orders, tidak perlu berpindah halaman
+                                    }
+                                    CanteenNavTab.HISTORY -> {
+
+                                    }
+                                    CanteenNavTab.PROFILE -> {
+
+                                    }
                                 }
                             }
                         )
