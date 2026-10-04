@@ -52,6 +52,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.compose.material3.RadioButtonDefaults.colors
 import android.R.attr.shape
 import androidx.compose.foundation.layout.navigationBarsPadding
+import androidx.compose.foundation.layout.statusBarsPadding
 import com.pemmob.smartcanteen.data.model.PaymentMethod
 import com.pemmob.smartcanteen.ui.theme.CanteenPrimary
 import com.pemmob.smartcanteen.ui.theme.CanteenSecondary
@@ -91,17 +92,6 @@ fun CheckoutScreen(
     Scaffold(
         modifier = modifier.fillMaxSize(),
         containerColor = CanteenWarmBg,
-        topBar = {
-            TopAppBar(
-                title = { Text("Konfirmasi Pesanan", fontWeight = FontWeight.Bold) },
-                navigationIcon = {
-                    IconButton(onClick = onBackClick) {
-                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Kembali")
-                    }
-                },
-                colors = TopAppBarDefaults.topAppBarColors(containerColor = CanteenWarmBg)
-            )
-        },
         bottomBar = {
             Card(
                 modifier = Modifier
@@ -145,15 +135,32 @@ fun CheckoutScreen(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(innerPadding)
+                .statusBarsPadding()
                 .padding(horizontal = 20.dp),
             verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
             item {
-                Text(
-                    text = "Rincian Menu",
-                    style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold),
-                    color = CanteenTextPrimary
-                )
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    modifier = Modifier.padding(top = 8.dp)
+                ) {
+                    IconButton(
+                        onClick = onBackClick,
+                        modifier = Modifier.size(36.dp)
+                    ) {
+                        Icon(
+                            imageVector = Icons.AutoMirrored.Filled.ArrowBack,
+                            contentDescription = "Kembali",
+                            tint = CanteenTextPrimary
+                        )
+                    }
+                    Spacer(modifier = Modifier.width(8.dp))
+                    Text(
+                        text = "Rincian Menu",
+                        style = MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.Bold),
+                        color = CanteenTextPrimary
+                    )
+                }
             }
 
             items(cartState.items.values.toList()) { cartItem ->
