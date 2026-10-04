@@ -15,6 +15,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ReceiptLong
 import androidx.compose.material.icons.filled.BookmarkBorder
+import androidx.compose.material.icons.filled.Fastfood
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.PersonOutline
 import androidx.compose.material3.Icon
@@ -42,10 +43,51 @@ enum class CanteenNavTab(val label: String, val icon: ImageVector) {
     PROFILE("Profile", Icons.Default.PersonOutline)
 }
 
+enum class MerchantNavTab(val label: String, val icon: ImageVector) {
+    ORDERS("Pesanan", Icons.AutoMirrored.Filled.ReceiptLong),
+    MENU("Menu & Stok", Icons.Default.Fastfood),
+    PROFILE("Profil", Icons.Default.PersonOutline)
+}
+
 @Composable
 fun CanteenBottomNav(
     selectedTab: CanteenNavTab = CanteenNavTab.HOME,
     onTabSelected: (CanteenNavTab) -> Unit = {},
+    modifier: Modifier = Modifier
+) {
+    GenericCanteenBottomNav(
+        items = CanteenNavTab.entries,
+        selectedItem = selectedTab,
+        getItemLabel = { it.label },
+        getItemIcon = { it.icon },
+        onItemSelected = onTabSelected,
+        modifier = modifier
+    )
+}
+
+@Composable
+fun MerchantBottomNav(
+    selectedTab: MerchantNavTab = MerchantNavTab.ORDERS,
+    onTabSelected: (MerchantNavTab) -> Unit = {},
+    modifier: Modifier = Modifier
+) {
+    GenericCanteenBottomNav(
+        items = MerchantNavTab.entries,
+        selectedItem = selectedTab,
+        getItemLabel = { it.label },
+        getItemIcon = { it.icon },
+        onItemSelected = onTabSelected,
+        modifier = modifier
+    )
+}
+
+@Composable
+fun <T> GenericCanteenBottomNav(
+    items: List<T>,
+    selectedItem: T,
+    getItemLabel: (T) -> String,
+    getItemIcon: (T) -> ImageVector,
+    onItemSelected: (T) -> Unit,
     modifier: Modifier = Modifier
 ) {
     Surface(
@@ -64,15 +106,15 @@ fun CanteenBottomNav(
             horizontalArrangement = Arrangement.SpaceAround,
             verticalAlignment = Alignment.CenterVertically
         ) {
-            CanteenNavTab.entries.forEach { tab ->
-                val isSelected = tab == selectedTab
+            items.forEach { tab ->
+                val isSelected = tab == selectedItem
 
                 Column(
                     horizontalAlignment = Alignment.CenterHorizontally,
                     verticalArrangement = Arrangement.Center,
                     modifier = Modifier
                         .clip(RoundedCornerShape(16.dp))
-                        .clickable { onTabSelected(tab) }
+                        .clickable { onItemSelected(tab) }
                         .padding(horizontal = 8.dp, vertical = 4.dp)
                 ) {
                     Box(
@@ -83,15 +125,15 @@ fun CanteenBottomNav(
                         contentAlignment = Alignment.Center
                     ) {
                         Icon(
-                            imageVector = tab.icon,
-                            contentDescription = tab.label,
+                            imageVector = getItemIcon(tab),
+                            contentDescription = getItemLabel(tab),
                             tint = if (isSelected) CanteenPrimary else CanteenTextSecondary,
                             modifier = Modifier.size(22.dp)
                         )
                     }
 
                     Text(
-                        text = tab.label,
+                        text = getItemLabel(tab),
                         style = MaterialTheme.typography.labelSmall.copy(
                             fontSize = 11.sp,
                             fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Medium

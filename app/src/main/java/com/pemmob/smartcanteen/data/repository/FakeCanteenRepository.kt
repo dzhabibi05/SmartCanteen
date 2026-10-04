@@ -103,8 +103,49 @@ object FakeCanteenRepository : CanteenRepository {
     }
 
     // --- State Pesanan (Orders) ---
-    private val _ordersFlow = MutableStateFlow<List<Order>>(emptyList())
-    private var orderCounter = 1
+    private val initialOrders = listOf(
+        Order(
+            id = "SC-1042",
+            buyerId = "user_mhs_2",
+            buyerName = "Rian Pratama (Meja #12)",
+            items = listOf(
+                OrderItem("menu_1", "Nasi Goreng Spesial", 15000.0, 2),
+                OrderItem("menu_5", "Es Teh Manis", 4000.0, 1)
+            ),
+            totalPrice = 34000.0,
+            status = OrderStatus.MENUNGGU_KONFIRMASI,
+            paymentMethod = PaymentMethod.QRIS,
+            queueNumber = "SC-1042"
+        ),
+        Order(
+            id = "SC-1041",
+            buyerId = "user_mhs_3",
+            buyerName = "Siti Aisyah (Bungkus / Takeaway)",
+            items = listOf(
+                OrderItem("menu_2", "Mie Goreng Spesial", 12000.0, 1),
+                OrderItem("menu_6", "Kopi Susu Gula Aren", 8000.0, 1)
+            ),
+            totalPrice = 20000.0,
+            status = OrderStatus.DIPROSES,
+            paymentMethod = PaymentMethod.TUNAI,
+            queueNumber = "SC-1041"
+        ),
+        Order(
+            id = "SC-1039",
+            buyerId = "user_mhs_4",
+            buyerName = "Budi Santoso (Loker #04)",
+            items = listOf(
+                OrderItem("menu_3", "Nasi Ayam Goreng Krispi", 13000.0, 1)
+            ),
+            totalPrice = 13000.0,
+            status = OrderStatus.SIAP_DIAMBIL,
+            paymentMethod = PaymentMethod.TUNAI,
+            queueNumber = "SC-1039"
+        )
+    )
+
+    private val _ordersFlow = MutableStateFlow<List<Order>>(initialOrders)
+    private var orderCounter = 43
 
     override fun getOrders(): Flow<List<Order>> = _ordersFlow.asStateFlow()
 
