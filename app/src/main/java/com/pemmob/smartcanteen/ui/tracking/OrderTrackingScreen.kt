@@ -1,5 +1,6 @@
 package com.pemmob.smartcanteen.ui.tracking
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -10,25 +11,24 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
-import androidx.compose.material.icons.filled.AccessTime
-import androidx.compose.material.icons.filled.CheckCircle
-import androidx.compose.material.icons.filled.HourglassTop
-import androidx.compose.material.icons.filled.TakeoutDining
-import androidx.compose.material3.Button
-import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material.icons.filled.Fastfood
+import androidx.compose.material.icons.filled.SoupKitchen
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
@@ -37,17 +37,15 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.pemmob.smartcanteen.data.model.OrderStatus
 import com.pemmob.smartcanteen.ui.theme.CanteenPrimary
-import com.pemmob.smartcanteen.ui.theme.CanteenSecondary
-import com.pemmob.smartcanteen.ui.theme.CanteenSurface
-import com.pemmob.smartcanteen.ui.theme.CanteenTextPrimary
-import com.pemmob.smartcanteen.ui.theme.CanteenTextSecondary
 import com.pemmob.smartcanteen.ui.theme.CanteenWarmBg
 import java.text.NumberFormat
 import java.util.Locale
@@ -67,7 +65,7 @@ fun OrderTrackingScreen(
         containerColor = CanteenWarmBg,
         topBar = {
             TopAppBar(
-                title = { Text("Pelacakan Pesanan", fontWeight = FontWeight.Bold) },
+                title = { Text("Your Order", fontWeight = FontWeight.Bold, fontSize = 28.sp) },
                 navigationIcon = {
                     IconButton(onClick = onBackClick) {
                         Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Kembali")
@@ -95,104 +93,103 @@ fun OrderTrackingScreen(
                     .padding(horizontal = 20.dp),
                 verticalArrangement = Arrangement.spacedBy(16.dp)
             ) {
+                // 1. Top Banner Status Update (Orange Header)
+                item {
+                    BannerStatusHeader(status = currentOrder.status)
+                }
+
+                // 2. Order Detail Card (Menampilkan data asli dari order)
                 item {
                     Card(
                         modifier = Modifier.fillMaxWidth(),
-                        shape = RoundedCornerShape(20.dp),
-                        colors = CardDefaults.cardColors(containerColor = CanteenPrimary)
+                        shape = RoundedCornerShape(24.dp),
+                        colors = CardDefaults.cardColors(containerColor = Color.White)
                     ) {
-                        Column(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .padding(24.dp),
-                            horizontalAlignment = Alignment.CenterHorizontally
-                        ) {
-                            Text(
-                                text = "NOMOR ANTREAN",
-                                color = Color.White.copy(alpha = 0.8f),
-                                fontSize = 13.sp,
-                                fontWeight = FontWeight.SemiBold
-                            )
-                            Spacer(modifier = Modifier.height(4.dp))
-                            Text(
-                                text = currentOrder.queueNumber,
-                                style = MaterialTheme.typography.displayMedium.copy(
-                                    color = Color.White,
-                                    fontWeight = FontWeight.ExtraBold
+                        Column(modifier = Modifier.padding(20.dp)) {
+                            // Header Nomor Antrean (Dine-in badge telah dihapus)
+                            Column {
+                                Text(
+                                    text = "Order #${currentOrder.queueNumber}",
+                                    fontWeight = FontWeight.Bold,
+                                    fontSize = 22.sp
                                 )
-                            )
-                            Spacer(modifier = Modifier.height(8.dp))
-                            Row(verticalAlignment = Alignment.CenterVertically) {
-                                Icon(
-                                    imageVector = Icons.Default.AccessTime,
-                                    contentDescription = null,
-                                    tint = Color.White,
-                                    modifier = Modifier.size(16.dp)
-                                )
-                                Spacer(modifier = Modifier.size(6.dp))
+                                Spacer(modifier = Modifier.height(2.dp))
                                 Text(
                                     text = "Estimasi: ± ${currentOrder.estimatedMinutes} menit",
-                                    color = Color.White,
+                                    color = Color.Gray,
                                     fontSize = 13.sp
                                 )
+                            }
+
+                            Spacer(modifier = Modifier.height(16.dp))
+                            HorizontalDivider(color = Color(0xFFF0F0F0))
+                            Spacer(modifier = Modifier.height(16.dp))
+
+                            // List Item Makanan Dinamis dari currentOrder.items
+                            currentOrder.items.forEach { item ->
+                                Row(
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .padding(vertical = 8.dp),
+                                    verticalAlignment = Alignment.CenterVertically
+                                ) {
+                                    Box(
+                                        modifier = Modifier
+                                            .size(52.dp)
+                                            .clip(RoundedCornerShape(12.dp))
+                                            .background(Color(0xFFF6EDE4)),
+                                        contentAlignment = Alignment.Center
+                                    ) {
+                                        Icon(
+                                            imageVector = Icons.Default.SoupKitchen,
+                                            contentDescription = null,
+                                            tint = Color(0xFF8D6E63)
+                                        )
+                                    }
+
+                                    Spacer(modifier = Modifier.width(12.dp))
+
+                                    Column(modifier = Modifier.weight(1f)) {
+                                        Text(
+                                            text = item.menuName,
+                                            fontWeight = FontWeight.Bold,
+                                            fontSize = 15.sp
+                                        )
+                                        Text(
+                                            text = "Qty: ${item.qty}",
+                                            fontSize = 13.sp,
+                                            color = Color.Gray
+                                        )
+                                    }
+
+                                    Text(
+                                        text = formatRupiah(item.subtotal),
+                                        fontWeight = FontWeight.Bold,
+                                        fontSize = 14.sp
+                                    )
+                                }
                             }
                         }
                     }
                 }
 
+                // 3. Status Section Header
                 item {
                     Text(
-                        text = "Status Pesanan",
+                        text = "Status",
                         fontWeight = FontWeight.Bold,
-                        color = CanteenTextPrimary,
-                        fontSize = 16.sp
+                        fontSize = 22.sp,
+                        modifier = Modifier.padding(top = 8.dp)
                     )
                 }
 
+                // 4. Horizontal Timeline Status Card
                 item {
-                    StatusIndicatorCard(currentStatus = currentOrder.status)
+                    HorizontalStatusTimelineCard(currentStatus = currentOrder.status)
                 }
 
                 item {
-                    Text(
-                        text = "Detail Pesanan",
-                        fontWeight = FontWeight.Bold,
-                        color = CanteenTextPrimary,
-                        fontSize = 16.sp
-                    )
-                }
-
-                items(currentOrder.items) { item ->
-                    Card(
-                        modifier = Modifier.fillMaxWidth(),
-                        shape = RoundedCornerShape(14.dp),
-                        colors = CardDefaults.cardColors(containerColor = CanteenSurface)
-                    ) {
-                        Row(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .padding(14.dp),
-                            horizontalArrangement = Arrangement.SpaceBetween,
-                            verticalAlignment = Alignment.CenterVertically
-                        ) {
-                            Text("${item.qty}x ${item.menuName}", fontWeight = FontWeight.Medium, color = CanteenTextPrimary)
-                            Text(formatRupiah(item.subtotal), fontWeight = FontWeight.Bold, color = CanteenSecondary)
-                        }
-                    }
-                }
-
-                item {
-                    Spacer(modifier = Modifier.height(16.dp))
-                    Button(
-                        onClick = onBackClick,
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .height(50.dp),
-                        shape = RoundedCornerShape(16.dp),
-                        colors = ButtonDefaults.buttonColors(containerColor = CanteenSecondary)
-                    ) {
-                        Text("Kembali ke Beranda", fontWeight = FontWeight.Bold)
-                    }
+                    Spacer(modifier = Modifier.height(20.dp))
                 }
             }
         }
@@ -200,53 +197,119 @@ fun OrderTrackingScreen(
 }
 
 @Composable
-private fun StatusIndicatorCard(currentStatus: OrderStatus) {
+private fun BannerStatusHeader(status: OrderStatus) {
+    val titleText = when (status) {
+        OrderStatus.MENUNGGU_KONFIRMASI -> "Menunggu konfirmasi pembayaran!"
+        OrderStatus.DIPROSES -> "Pesanan sedang disiapkan!"
+        OrderStatus.SIAP_DIAMBIL -> "Pesanan siap diambil di kantin!"
+        OrderStatus.SELESAI -> "Pesanan selesai!"
+        OrderStatus.DITOLAK -> "Pesanan ditolak penjual"
+    }
+
     Card(
         modifier = Modifier.fillMaxWidth(),
-        shape = RoundedCornerShape(16.dp),
-        colors = CardDefaults.cardColors(containerColor = CanteenSurface)
+        shape = RoundedCornerShape(24.dp),
+        colors = CardDefaults.cardColors(containerColor = status.containerColor)
     ) {
-        Column(
-            modifier = Modifier.padding(16.dp),
-            verticalArrangement = Arrangement.spacedBy(14.dp)
+        Row(
+            modifier = Modifier.padding(20.dp),
+            verticalAlignment = Alignment.CenterVertically
         ) {
-            val stepList = listOf(
-                OrderStatus.MENUNGGU_KONFIRMASI to "Menunggu Konfirmasi Pembayaran",
-                OrderStatus.DIPROSES to "Pesanan Sedang Diproses",
-                OrderStatus.SIAP_DIAMBIL to "Pesanan Siap Diambil di Kantin",
-                OrderStatus.SELESAI to "Selesai"
+            Box(
+                modifier = Modifier
+                    .size(48.dp)
+                    .background(status.statusColor.copy(alpha = 0.2f), CircleShape),
+                contentAlignment = Alignment.Center
+            ) {
+                Icon(
+                    imageVector = Icons.Default.Fastfood,
+                    contentDescription = null,
+                    tint = status.statusColor
+                )
+            }
+            Spacer(modifier = Modifier.width(16.dp))
+            Column {
+                Text(
+                    text = "Update Pesanan",
+                    color = status.statusColor.copy(alpha = 0.8f),
+                    fontSize = 12.sp,
+                    fontWeight = FontWeight.Medium
+                )
+                Text(
+                    text = titleText,
+                    color = status.statusColor,
+                    fontSize = 16.sp,
+                    fontWeight = FontWeight.Bold
+                )
+            }
+        }
+    }
+}
+
+@Composable
+private fun HorizontalStatusTimelineCard(currentStatus: OrderStatus) {
+    Card(
+        modifier = Modifier.fillMaxWidth(),
+        shape = RoundedCornerShape(24.dp),
+        colors = CardDefaults.cardColors(containerColor = Color.White)
+    ) {
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(vertical = 28.dp, horizontal = 12.dp),
+            contentAlignment = Alignment.Center
+        ) {
+            val steps = listOf(
+                OrderStatus.MENUNGGU_KONFIRMASI to "Menunggu\nKonfirmasi",
+                OrderStatus.DIPROSES to "Pesanan\nDiproses",
+                OrderStatus.SIAP_DIAMBIL to "Siap\nDiambil",
+                OrderStatus.SELESAI to "Pesanan\nSelesai"
             )
 
-            if (currentStatus == OrderStatus.DITOLAK) {
-                Text(
-                    text = "Pesanan Ditolak oleh Penjual",
-                    style = MaterialTheme.typography.titleMedium.copy(
-                        fontWeight = FontWeight.Bold,
-                        color = Color(0xFFC0392B)
-                    )
-                )
-            } else {
-                val currentIndex = stepList.indexOfFirst { it.first == currentStatus }
-                stepList.forEachIndexed { index, pair ->
-                    val isDone = index <= currentIndex
-                    Row(verticalAlignment = Alignment.CenterVertically) {
-                        Icon(
-                            imageVector = when {
-                                index < currentIndex -> Icons.Default.CheckCircle
-                                index == currentIndex -> Icons.Default.HourglassTop
-                                else -> Icons.Default.TakeoutDining
-                            },
-                            contentDescription = null,
-                            tint = if (isDone) CanteenPrimary else Color.LightGray,
-                            modifier = Modifier.size(24.dp)
-                        )
-                        Spacer(modifier = Modifier.size(12.dp))
+            val currentIndex = steps.indexOfFirst { it.first == currentStatus }
+
+            // Garis Penghubung Belakang
+            HorizontalDivider(
+                modifier = Modifier
+                    .fillMaxWidth(0.8f)
+                    .align(Alignment.Center),
+                color = Color(0xFFECECEE),
+                thickness = 2.dp
+            )
+
+            // Step Badges
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                steps.forEachIndexed { index, pair ->
+                    val stepStatus = pair.first
+                    val isCurrent = index == currentIndex
+                    val isPassed = index < currentIndex
+
+                    val activeBg = stepStatus.statusColor
+                    val bg = when {
+                        isCurrent -> activeBg
+                        isPassed -> activeBg.copy(alpha = 0.3f)
+                        else -> Color(0xFFF3ECE5)
+                    }
+
+                    val textColor = if (isCurrent) Color.White else Color(0xFF6E6E6E)
+
+                    Surface(
+                        shape = RoundedCornerShape(50),
+                        color = bg,
+                        modifier = Modifier.width(80.dp)
+                    ) {
                         Text(
                             text = pair.second,
-                            style = MaterialTheme.typography.bodyMedium.copy(
-                                fontWeight = if (isDone) FontWeight.Bold else FontWeight.Normal,
-                                color = if (isDone) CanteenTextPrimary else CanteenTextSecondary
-                            )
+                            color = textColor,
+                            fontSize = 9.sp,
+                            fontWeight = if (isCurrent) FontWeight.Bold else FontWeight.Medium,
+                            textAlign = TextAlign.Center,
+                            lineHeight = 11.sp,
+                            modifier = Modifier.padding(horizontal = 2.dp, vertical = 10.dp)
                         )
                     }
                 }
