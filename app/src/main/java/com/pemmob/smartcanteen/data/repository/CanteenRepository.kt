@@ -14,6 +14,9 @@ interface CanteenRepository {
     fun getMenuItems(storeId: String = "store_1"): Flow<List<MenuItem>>
     suspend fun getMenuItemById(id: String): MenuItem?
     suspend fun updateStock(menuId: String, newStock: Int)
+    suspend fun addMenuItem(menuItem: MenuItem)
+    suspend fun updateMenuItem(menuItem: MenuItem)
+    suspend fun toggleMenuItemActive(menuId: String, isActive: Boolean)
 
     // User & Autentikasi Simulasi
     val currentUser: StateFlow<User>
@@ -28,6 +31,7 @@ interface CanteenRepository {
 
     // Pesanan (Orders)
     fun getOrders(): Flow<List<Order>>
+    fun getHistoryOrders(): Flow<List<Order>>
     suspend fun getOrderById(orderId: String): Order?
     suspend fun createOrder(paymentMethod: PaymentMethod): Result<Order>
     suspend fun updateOrderStatus(orderId: String, newStatus: OrderStatus)

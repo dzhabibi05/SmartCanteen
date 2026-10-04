@@ -34,12 +34,12 @@ object FakeCanteenRepository : CanteenRepository {
 
     // --- State Menu & Stok ---
     private val initialMenuItems = listOf(
-        MenuItem("menu_1", "store_1", "Nasi Goreng", "Nasi yang di goreng pake toping", 15000.0, 15, "https://images.unsplash.com/photo-1512058564366-18510be2db19?w=600", "Lunch", isHot = true),
-        MenuItem("menu_2", "store_1", "Mie Goreng", "Mie yang di goreng pake toping", 12000.0, 10, "https://images.unsplash.com/photo-1585032226651-759b368d7246?w=600", "Lunch", isHot = true),
-        MenuItem("menu_3", "store_1", "Nasi Ayam Goreng", "Nasi pake lauk ayam goreng krispi", 13000.0, 8, "https://images.unsplash.com/photo-1626082927389-6cd097cdc6ec?w=600", "Breakfast", isHot = true),
-        MenuItem("menu_4", "store_1", "Nasi Ayam Swir", "Nasi pake lauk ayam yang di swir", 15000.0, 5, "https://images.unsplash.com/photo-1562967914-608f82629710?w=600", "Breakfast", isHot = true),
+        MenuItem("menu_1", "store_1", "Nasi Goreng Spesial", "Nasi goreng gurih dengan telur, bakso, dan sosis", 15000.0, 15, "https://images.unsplash.com/photo-1512058564366-18510be2db19?w=600", "Lunch", isHot = true),
+        MenuItem("menu_2", "store_1", "Mie Goreng Spesial", "Mie goreng bumbu rempah dengan topping ayam dan telur", 12000.0, 10, "https://images.unsplash.com/photo-1585032226651-759b368d7246?w=600", "Lunch", isHot = true),
+        MenuItem("menu_3", "store_1", "Nasi Ayam Goreng Krispi", "Nasi hangat dengan lauk ayam goreng renyah dan sambal", 13000.0, 8, "https://images.unsplash.com/photo-1626082927389-6cd097cdc6ec?w=600", "Breakfast", isHot = true),
+        MenuItem("menu_4", "store_1", "Nasi Ayam Suwir", "Nasi gurih dengan suwiran ayam bumbu bali manis pedas", 15000.0, 5, "https://images.unsplash.com/photo-1562967914-608f82629710?w=600", "Breakfast", isHot = true),
         MenuItem("menu_5", "store_1", "Es Teh Manis", "Teh melati dingin segar dengan manis pas", 4000.0, 25, "https://images.unsplash.com/photo-1556679343-c7306c1976bc?w=600", "Drinks", isHot = false),
-        MenuItem("menu_6", "store_1", "Kopi Susu Aren", "Espresso blend dengan susu segar dan gula aren", 10000.0, 12, "https://images.unsplash.com/photo-1517701550927-30cf4ba1dba5?w=600", "Drinks", isHot = false),
+        MenuItem("menu_6", "store_1", "Kopi Susu Gula Aren", "Espresso blend dengan susu segar dan gula aren asli", 8000.0, 12, "https://images.unsplash.com/photo-1517701550927-30cf4ba1dba5?w=600", "Drinks", isHot = false),
         MenuItem("menu_7", "store_1", "Kentang Goreng", "French fries renyah dengan taburan bumbu gurih", 8000.0, 4, "https://images.unsplash.com/photo-1576107232684-1279f3908594?w=600", "Snacks", isHot = false),
         MenuItem("menu_8", "store_1", "Roti Bakar Cokelat Keju", "Roti bakar empuk isi meses cokelat dan keju parut", 10000.0, 6, "https://images.unsplash.com/photo-1528735602780-2552fd46c7af?w=600", "Snacks", isHot = false)
     )
@@ -62,6 +62,24 @@ object FakeCanteenRepository : CanteenRepository {
         }
     }
 
+    override suspend fun addMenuItem(menuItem: MenuItem) {
+        _menuItemsFlow.update { currentList ->
+            listOf(menuItem) + currentList
+        }
+    }
+
+    override suspend fun updateMenuItem(menuItem: MenuItem) {
+        _menuItemsFlow.update { currentList ->
+            currentList.map { if (it.id == menuItem.id) menuItem else it }
+        }
+    }
+
+    override suspend fun toggleMenuItemActive(menuId: String, isActive: Boolean) {
+        _menuItemsFlow.update { currentList ->
+            currentList.map { if (it.id == menuId) it.copy(isActive = isActive) else it }
+        }
+    }
+
     // --- State Keranjang Belanja ---
     private val _cartState = MutableStateFlow(CartState())
     override val cartState: StateFlow<CartState> = _cartState.asStateFlow()
@@ -77,7 +95,7 @@ object FakeCanteenRepository : CanteenRepository {
         }
 
         val updated = currentItems.toMutableMap().apply {
-            put(menuItem.id, CartItem(menuItem, currentQty + 1))
+            put(menuItem.id, CartItem(currentItemInRepo, currentQty + 1))
         }
         _cartState.update { it.copy(items = updated, userNotice = null) }
     }
@@ -141,6 +159,31 @@ object FakeCanteenRepository : CanteenRepository {
             status = OrderStatus.SIAP_DIAMBIL,
             paymentMethod = PaymentMethod.TUNAI,
             queueNumber = "SC-1039"
+        ),
+        Order(
+            id = "SC-1030",
+            buyerId = "user_mhs_1",
+            buyerName = "Yoga",
+            items = listOf(
+                OrderItem("menu_1", "Nasi Goreng Spesial", 15000.0, 1),
+                OrderItem("menu_5", "Es Teh Manis", 4000.0, 1)
+            ),
+            totalPrice = 19000.0,
+            status = OrderStatus.SELESAI,
+            paymentMethod = PaymentMethod.QRIS,
+            queueNumber = "SC-1030"
+        ),
+        Order(
+            id = "SC-1025",
+            buyerId = "user_mhs_1",
+            buyerName = "Yoga",
+            items = listOf(
+                OrderItem("menu_8", "Roti Bakar Cokelat Keju", 10000.0, 1)
+            ),
+            totalPrice = 10000.0,
+            status = OrderStatus.DITOLAK,
+            paymentMethod = PaymentMethod.TUNAI,
+            queueNumber = "SC-1025"
         )
     )
 
@@ -148,6 +191,12 @@ object FakeCanteenRepository : CanteenRepository {
     private var orderCounter = 43
 
     override fun getOrders(): Flow<List<Order>> = _ordersFlow.asStateFlow()
+
+    override fun getHistoryOrders(): Flow<List<Order>> {
+        return _ordersFlow.map { list ->
+            list.filter { it.status == OrderStatus.SELESAI || it.status == OrderStatus.DITOLAK }
+        }
+    }
 
     override suspend fun getOrderById(orderId: String): Order? {
         return _ordersFlow.value.find { it.id == orderId }

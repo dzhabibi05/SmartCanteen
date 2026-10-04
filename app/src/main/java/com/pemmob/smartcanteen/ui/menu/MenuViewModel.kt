@@ -18,7 +18,7 @@ class MenuViewModel(
     val storeId: String = "store_1"
 ) : ViewModel() {
 
-    val categories = listOf("All", "Breakfast", "Lunch", "Snacks", "Drinks")
+    val categories = listOf("All", "🔥 Hot", "Breakfast", "Lunch", "Snacks", "Drinks")
 
     private val _searchQuery = MutableStateFlow("")
     val searchQuery: StateFlow<String> = _searchQuery.asStateFlow()
@@ -35,7 +35,11 @@ class MenuViewModel(
         _selectedCategory
     ) { menuList, query, category ->
         val filtered = menuList.filter { item ->
-            val matchCategory = category == "All" || item.category.equals(category, ignoreCase = true)
+            val matchCategory = when {
+                category == "All" -> true
+                category == "🔥 Hot" -> item.isHot
+                else -> item.category.equals(category, ignoreCase = true)
+            }
             val matchQuery = query.isBlank() ||
                     item.name.contains(query, ignoreCase = true) ||
                     item.description.contains(query, ignoreCase = true)
